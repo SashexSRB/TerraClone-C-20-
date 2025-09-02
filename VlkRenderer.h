@@ -18,10 +18,13 @@ public:
   VkInstance instance;
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
   VkPhysicalDeviceProperties deviceProperties;
-  VkPhysicalDeviceFeatures deviceFeatures;
+  VkPhysicalDeviceFeatures deviceFeatures{};
+  VkDevice device;
+  VkQueue graphicsQueue;
 
   void createInstance();
   void pickPhysicalDevice();
+  void createLogicalDevice();
   int rateDeviceSuitability(VkPhysicalDevice device);
   bool isDeviceSuitable(VkPhysicalDevice device);
 

@@ -22,6 +22,7 @@ void VulkanApp::initVulkan() {
   vlkRenderer.createInstance();
   validator.setupDebugMessenger(vlkRenderer.instance);
   vlkRenderer.pickPhysicalDevice();
+  vlkRenderer.createLogicalDevice();
 
   uint32_t extensionCount = 0;
   vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
