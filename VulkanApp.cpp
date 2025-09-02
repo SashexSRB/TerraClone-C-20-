@@ -1,12 +1,10 @@
 #include "VulkanApp.h"
 #include "VlkRenderer.h"
+#include "VlkValidator.h"
 #include <iostream>
-#include <stdexcept>
-#include <vector>
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan_core.h>
 
 VlkRenderer vlkRenderer;
+
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
@@ -21,21 +19,7 @@ void VulkanApp::initWindow() {
 
 void VulkanApp::initVulkan() {
   vlkRenderer.createInstance();
-
-  uint32_t glfwExtensionCount = 0;
-  const char **glfwExtensions;
-
-  VkInstanceCreateInfo createInfo{};
-  createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-  createInfo.pApplicationInfo = &vlkRenderer.appInfo;
-  createInfo.enabledExtensionCount = glfwExtensionCount;
-  createInfo.ppEnabledExtensionNames = glfwExtensions;
-  createInfo.enabledLayerCount = 0;
-
-  if (vkCreateInstance(&createInfo, nullptr, &vlkRenderer.instance) !=
-      VK_SUCCESS) {
-    throw std::runtime_error("Failed to create instance!");
-  }
+  validator.setupDebugMessenger(vlkRenderer.instance);
 
   uint32_t extensionCount = 0;
   vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -58,7 +42,13 @@ void VulkanApp::mainLoop() {
 }
 
 void VulkanApp::cleanup() {
+  if (validator.enableValidationLayers) {
+    validator.DestroyDebugUtilsMessengerEXT(vlkRenderer.instance,
+                                            validator.debugMessenger, nullptr);
+  }
+
   vkDestroyInstance(vlkRenderer.instance, nullptr);
+
   glfwDestroyWindow(window);
 
   glfwTerminate();
