@@ -20,11 +20,9 @@ bool VlkValidator::checkValidationLayerSupport() {
       }
     }
 
-    if (!layerFound) {
+    if (!layerFound)
       return false;
-    }
   }
-
   return true;
 }
 
@@ -33,7 +31,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VlkValidator::debugCallback(
     VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
     void *pUserData) {
-  std::cerr << "Validation Layer: " << pCallbackData->pMessage << "\n";
+  // std::cerr << "Validation Layer: " << pCallbackData->pMessage << "\n";
   return VK_FALSE;
 }
 
@@ -72,9 +70,8 @@ void VlkValidator::setupDebugMessenger(VkInstance instance) {
   populateDebugMesengerCreateInfo(createInfo);
 
   if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr,
-                                   &debugMessenger) != VK_SUCCESS) {
+                                   &debugMessenger) != VK_SUCCESS)
     throw std::runtime_error("Failed to set up debug messenger!");
-  }
 }
 
 void VlkValidator::DestroyDebugUtilsMessengerEXT(
@@ -82,7 +79,6 @@ void VlkValidator::DestroyDebugUtilsMessengerEXT(
     const VkAllocationCallbacks *pAllocator) {
   auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
       instance, "vkDestroyDebugUtilsMessengerEXT");
-  if (func != nullptr) {
+  if (func != nullptr)
     func(instance, debugMessenger, pAllocator);
-  }
 }
