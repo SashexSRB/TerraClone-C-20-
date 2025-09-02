@@ -4,6 +4,9 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
 class VlkRenderer {
 public:
   uint32_t glfwExtensionCount = 0;
@@ -11,8 +14,11 @@ public:
 
   struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
 
-    bool isComplete() { return graphicsFamily.has_value(); }
+    bool isComplete() {
+      return graphicsFamily.has_value() && presentFamily.has_value();
+    }
   };
 
   VkInstance instance;
@@ -21,8 +27,11 @@ public:
   VkPhysicalDeviceFeatures deviceFeatures{};
   VkDevice device;
   VkQueue graphicsQueue;
+  VkQueue presentQueue;
+  VkSurfaceKHR surface;
 
   void createInstance();
+  void createSurface(GLFWwindow *window);
   void pickPhysicalDevice();
   void createLogicalDevice();
   int rateDeviceSuitability(VkPhysicalDevice device);

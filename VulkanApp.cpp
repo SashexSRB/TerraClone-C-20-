@@ -21,6 +21,7 @@ void VulkanApp::initWindow() {
 void VulkanApp::initVulkan() {
   vlkRenderer.createInstance();
   validator.setupDebugMessenger(vlkRenderer.instance);
+  vlkRenderer.createSurface(window);
   vlkRenderer.pickPhysicalDevice();
   vlkRenderer.createLogicalDevice();
 
@@ -43,9 +44,13 @@ void VulkanApp::mainLoop() {
 }
 
 void VulkanApp::cleanup() {
+  vkDestroyDevice(vlkRenderer.device, nullptr);
+
   if (validator.enableValidationLayers)
     validator.DestroyDebugUtilsMessengerEXT(vlkRenderer.instance,
                                             validator.debugMessenger, nullptr);
+
+  vkDestroySurfaceKHR(vlkRenderer.instance, vlkRenderer.surface, nullptr);
 
   vkDestroyInstance(vlkRenderer.instance, nullptr);
 
