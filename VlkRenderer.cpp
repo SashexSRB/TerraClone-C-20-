@@ -92,6 +92,25 @@ VlkRenderer::findQueueFamilies(VkPhysicalDevice device) {
   return indices;
 }
 
+bool VlkRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+  uint32_t extensionCount;
+  vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount,
+                                       nullptr);
+
+  std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+  vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount,
+                                       availableExtensions.data());
+
+  std::set<std::string> requiredExtensions(deviceExtensions.begin(),
+                                           deviceExtensions.end());
+
+  for (const auto &extension : availableExtensions) {
+    requiredExtensions.erase(extension.extensionName);
+  }
+
+  return requiredExtensions.empty();
+}
+
 void VlkRenderer::createLogicalDevice() {
   QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
@@ -116,7 +135,9 @@ void VlkRenderer::createLogicalDevice() {
   createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
   createInfo.pEnabledFeatures = &deviceFeatures;
-  createInfo.enabledExtensionCount = 0;
+  createInfo.enabledExtensionCount =
+      static_cast<uint32_t>(deviceExtensions.size());
+  createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
   if (validator.enableValidationLayers) {
     createInfo.enabledLayerCount =
@@ -144,6 +165,8 @@ bool VlkRenderer::isDeviceSuitable(VkPhysicalDevice device) {
   //        deviceFeatures.geometryShader;
 
   QueueFamilyIndices indices = findQueueFamilies(device);
+
+  bool extensionsSupported = checkDeviceExtensionSupport(device);
 
   return indices.isComplete();
 }
