@@ -26,6 +26,7 @@ void VulkanApp::initVulkan() {
   vlkRenderer.createLogicalDevice();
   vlkRenderer.createSwapChain(window);
   vlkRenderer.createImageViews();
+  vlkRenderer.createGraphicsPipeline();
 
   uint32_t extensionCount = 0;
   vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);

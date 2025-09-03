@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include <optional>
 #include <vector>
 #include <vulkan/vulkan.h>
@@ -47,7 +48,7 @@ public:
   std::vector<VkImage> swapChainImages;
   VkFormat swapChainImageFormat;
   VkExtent2D swapChainExtent;
-  std::vector<VkImageView> swapChainImageViews;
+  static std::vector<VkImageView> swapChainImageViews;
 
   // Methods
   void createInstance();
@@ -56,10 +57,12 @@ public:
   void createLogicalDevice();
   void createSwapChain(GLFWwindow *window);
   void createImageViews();
+  void createGraphicsPipeline();
   int rateDeviceSuitability(VkPhysicalDevice device);
   bool checkDeviceExtensionSupport(VkPhysicalDevice device);
   bool isDeviceSuitable(VkPhysicalDevice device);
   std::vector<const char *> getRequiredExtensions();
+  std::vector<char> readFile(const std::string &filename);
 
   // Vulkan Datatype Methods
   QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
@@ -70,4 +73,5 @@ public:
       const std::vector<VkPresentModeKHR> &availablePresentModes);
   VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities,
                               GLFWwindow *window);
+  VkShaderModule createShaderModule(const std::vector<char> &code);
 };
