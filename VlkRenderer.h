@@ -49,6 +49,9 @@ public:
   VkFormat swapChainImageFormat;
   VkExtent2D swapChainExtent;
   static std::vector<VkImageView> swapChainImageViews;
+  VkRenderPass renderPass;
+  VkPipelineLayout pipelineLayout;
+  VkPipeline graphicsPipeline;
 
   // Methods
   void createInstance();
@@ -57,12 +60,13 @@ public:
   void createLogicalDevice();
   void createSwapChain(GLFWwindow *window);
   void createImageViews();
+  void createRenderPass();
   void createGraphicsPipeline();
   int rateDeviceSuitability(VkPhysicalDevice device);
   bool checkDeviceExtensionSupport(VkPhysicalDevice device);
   bool isDeviceSuitable(VkPhysicalDevice device);
   std::vector<const char *> getRequiredExtensions();
-  std::vector<char> readFile(const std::string &filename);
+  static std::vector<char> readFile(const std::string &filename);
 
   // Vulkan Datatype Methods
   QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);

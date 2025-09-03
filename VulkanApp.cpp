@@ -26,6 +26,7 @@ void VulkanApp::initVulkan() {
   vlkRenderer.createLogicalDevice();
   vlkRenderer.createSwapChain(window);
   vlkRenderer.createImageViews();
+  vlkRenderer.createRenderPass();
   vlkRenderer.createGraphicsPipeline();
 
   uint32_t extensionCount = 0;
@@ -47,6 +48,11 @@ void VulkanApp::mainLoop() {
 }
 
 void VulkanApp::cleanup() {
+  vkDestroyPipelineLayout(vlkRenderer.device, vlkRenderer.pipelineLayout,
+                          nullptr);
+
+  vkDestroyRenderPass(vlkRenderer.device, vlkRenderer.renderPass, nullptr);
+
   for (auto imageView : vlkRenderer.swapChainImageViews)
     vkDestroyImageView(vlkRenderer.device, imageView, nullptr);
 
