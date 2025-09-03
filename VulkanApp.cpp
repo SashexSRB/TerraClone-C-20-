@@ -24,6 +24,8 @@ void VulkanApp::initVulkan() {
   vlkRenderer.createSurface(window);
   vlkRenderer.pickPhysicalDevice();
   vlkRenderer.createLogicalDevice();
+  vlkRenderer.createSwapChain(window);
+  vlkRenderer.createImageViews();
 
   uint32_t extensionCount = 0;
   vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -44,6 +46,11 @@ void VulkanApp::mainLoop() {
 }
 
 void VulkanApp::cleanup() {
+  for (auto imageView : vlkRenderer.swapChainImageViews)
+    vkDestroyImageView(vlkRenderer.device, imageView, nullptr);
+
+  vkDestroySwapchainKHR(vlkRenderer.device, vlkRenderer.swapChain, nullptr);
+
   vkDestroyDevice(vlkRenderer.device, nullptr);
 
   if (validator.enableValidationLayers)

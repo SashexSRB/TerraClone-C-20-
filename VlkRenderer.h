@@ -10,12 +10,15 @@
 
 class VlkRenderer {
 public:
+  // Variables
   uint32_t glfwExtensionCount = 0;
-  const char **glfwExtensions;
 
+  // Constants
+  const char **glfwExtensions;
   const std::vector<const char *> deviceExtensions = {
       VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
+  // Structs
   struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsFamily;
     std::optional<uint32_t> presentFamily;
@@ -31,6 +34,7 @@ public:
     std::vector<VkPresentModeKHR> presentModes;
   };
 
+  // Vulkan Datatype Variables
   VkInstance instance;
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
   VkPhysicalDeviceProperties deviceProperties;
@@ -39,16 +43,31 @@ public:
   VkQueue graphicsQueue;
   VkQueue presentQueue;
   VkSurfaceKHR surface;
+  VkSwapchainKHR swapChain;
+  std::vector<VkImage> swapChainImages;
+  VkFormat swapChainImageFormat;
+  VkExtent2D swapChainExtent;
+  std::vector<VkImageView> swapChainImageViews;
 
+  // Methods
   void createInstance();
   void createSurface(GLFWwindow *window);
   void pickPhysicalDevice();
   void createLogicalDevice();
+  void createSwapChain(GLFWwindow *window);
+  void createImageViews();
   int rateDeviceSuitability(VkPhysicalDevice device);
   bool checkDeviceExtensionSupport(VkPhysicalDevice device);
   bool isDeviceSuitable(VkPhysicalDevice device);
-
   std::vector<const char *> getRequiredExtensions();
 
+  // Vulkan Datatype Methods
   QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+  SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+  VkSurfaceFormatKHR chooseSwapSurfaceFormat(
+      const std::vector<VkSurfaceFormatKHR> &availableFormats);
+  VkPresentModeKHR chooseSwapPresentMode(
+      const std::vector<VkPresentModeKHR> &availablePresentModes);
+  VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities,
+                              GLFWwindow *window);
 };
