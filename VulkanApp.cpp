@@ -28,6 +28,9 @@ void VulkanApp::initVulkan() {
   vlkRenderer.createImageViews();
   vlkRenderer.createRenderPass();
   vlkRenderer.createGraphicsPipeline();
+  vlkRenderer.createFramebuffers();
+  vlkRenderer.createCommandPool();
+  vlkRenderer.createCommandBuffer();
 
   uint32_t extensionCount = 0;
   vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -48,6 +51,12 @@ void VulkanApp::mainLoop() {
 }
 
 void VulkanApp::cleanup() {
+  vkDestroyCommandPool(vlkRenderer.device, vlkRenderer.commandPool, nullptr);
+
+  for (auto framebuffer : vlkRenderer.swapChainFramebuffers) {
+    vkDestroyFramebuffer(vlkRenderer.device, framebuffer, nullptr);
+  }
+
   vkDestroyPipelineLayout(vlkRenderer.device, vlkRenderer.pipelineLayout,
                           nullptr);
 

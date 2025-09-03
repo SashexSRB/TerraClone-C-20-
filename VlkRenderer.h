@@ -52,6 +52,9 @@ public:
   VkRenderPass renderPass;
   VkPipelineLayout pipelineLayout;
   VkPipeline graphicsPipeline;
+  std::vector<VkFramebuffer> swapChainFramebuffers;
+  VkCommandPool commandPool;
+  VkCommandBuffer commandBuffer;
 
   // Methods
   void createInstance();
@@ -62,6 +65,10 @@ public:
   void createImageViews();
   void createRenderPass();
   void createGraphicsPipeline();
+  void createFramebuffers();
+  void createCommandPool();
+  void createCommandBuffer();
+  void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
   int rateDeviceSuitability(VkPhysicalDevice device);
   bool checkDeviceExtensionSupport(VkPhysicalDevice device);
   bool isDeviceSuitable(VkPhysicalDevice device);
