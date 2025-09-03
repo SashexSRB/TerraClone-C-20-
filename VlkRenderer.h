@@ -54,7 +54,10 @@ public:
   VkPipeline graphicsPipeline;
   std::vector<VkFramebuffer> swapChainFramebuffers;
   VkCommandPool commandPool;
-  VkCommandBuffer commandBuffer;
+  std::vector<VkCommandBuffer> commandBuffers;
+  std::vector<VkSemaphore> imageAvailableSemaphores;
+  std::vector<VkSemaphore> renderFinishedSemaphores;
+  std::vector<VkFence> inFlightFences;
 
   // Methods
   void createInstance();
@@ -67,8 +70,9 @@ public:
   void createGraphicsPipeline();
   void createFramebuffers();
   void createCommandPool();
-  void createCommandBuffer();
+  void createCommandBuffers();
   void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+  void createSyncObjects();
   int rateDeviceSuitability(VkPhysicalDevice device);
   bool checkDeviceExtensionSupport(VkPhysicalDevice device);
   bool isDeviceSuitable(VkPhysicalDevice device);

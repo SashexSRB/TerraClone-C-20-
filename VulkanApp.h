@@ -9,9 +9,12 @@ public:
 
 private:
   GLFWwindow *window;
+  uint32_t currentFrame = 0;
 
   void initVulkan();
   void mainLoop();
   void cleanup();
   void initWindow();
+
+  void drawFrame();
 };

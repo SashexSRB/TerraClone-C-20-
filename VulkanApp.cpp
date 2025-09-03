@@ -2,11 +2,13 @@
 #include "VlkRenderer.h"
 #include "VlkValidator.h"
 #include <iostream>
+#include <vulkan/vulkan_core.h>
 
 VlkRenderer vlkRenderer;
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
+const int MAX_FRAMES_IN_FLIGHT = 2;
 
 void VulkanApp::initWindow() {
   glfwInit();
@@ -30,7 +32,8 @@ void VulkanApp::initVulkan() {
   vlkRenderer.createGraphicsPipeline();
   vlkRenderer.createFramebuffers();
   vlkRenderer.createCommandPool();
-  vlkRenderer.createCommandBuffer();
+  vlkRenderer.createCommandBuffers();
+  vlkRenderer.createSyncObjects();
 
   uint32_t extensionCount = 0;
   vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -45,12 +48,79 @@ void VulkanApp::initVulkan() {
     std::cout << '\t' << extension.extensionName << '\n';
 }
 
+void VulkanApp::drawFrame() {
+  vkWaitForFences(vlkRenderer.device, 1,
+                  &vlkRenderer.inFlightFences[currentFrame], VK_TRUE,
+                  UINT64_MAX);
+  vkResetFences(vlkRenderer.device, 1,
+                &vlkRenderer.inFlightFences[currentFrame]);
+
+  uint32_t imageIndex;
+  vkAcquireNextImageKHR(vlkRenderer.device, vlkRenderer.swapChain, UINT64_MAX,
+                        vlkRenderer.imageAvailableSemaphores[currentFrame],
+                        VK_NULL_HANDLE, &imageIndex);
+
+  vkResetCommandBuffer(vlkRenderer.commandBuffers[currentFrame], 0);
+  vlkRenderer.recordCommandBuffer(vlkRenderer.commandBuffers[currentFrame],
+                                  imageIndex);
+
+  VkSubmitInfo submitInfo{};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+  VkSemaphore waitSemaphores[] = {
+      vlkRenderer.imageAvailableSemaphores[currentFrame]};
+  VkPipelineStageFlags waitStages[] = {
+      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+  submitInfo.waitSemaphoreCount = 1;
+  submitInfo.pWaitSemaphores = waitSemaphores;
+  submitInfo.pWaitDstStageMask = waitStages;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &vlkRenderer.commandBuffers[currentFrame];
+
+  VkSemaphore signalSemaphores[] = {
+      vlkRenderer.renderFinishedSemaphores[currentFrame]};
+  submitInfo.signalSemaphoreCount = 1;
+  submitInfo.pSignalSemaphores = signalSemaphores;
+
+  if (vkQueueSubmit(vlkRenderer.graphicsQueue, 1, &submitInfo,
+                    vlkRenderer.inFlightFences[currentFrame]) != VK_SUCCESS)
+    throw std::runtime_error("Failed to submit draw command buffer!");
+
+  VkPresentInfoKHR presentInfo{};
+  presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+  presentInfo.waitSemaphoreCount = 1;
+  presentInfo.pWaitSemaphores = signalSemaphores;
+
+  VkSwapchainKHR swapChains[] = {vlkRenderer.swapChain};
+  presentInfo.swapchainCount = 1;
+  presentInfo.pSwapchains = swapChains;
+  presentInfo.pImageIndices = &imageIndex;
+
+  presentInfo.pResults = nullptr;
+
+  vkQueuePresentKHR(vlkRenderer.presentQueue, &presentInfo);
+
+  currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
 void VulkanApp::mainLoop() {
-  while (!glfwWindowShouldClose(window))
+  while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
+    drawFrame();
+  }
+
+  vkDeviceWaitIdle(vlkRenderer.device);
 }
 
 void VulkanApp::cleanup() {
+  for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    vkDestroySemaphore(vlkRenderer.device,
+                       vlkRenderer.imageAvailableSemaphores[i], nullptr);
+    vkDestroySemaphore(vlkRenderer.device,
+                       vlkRenderer.renderFinishedSemaphores[i], nullptr);
+    vkDestroyFence(vlkRenderer.device, vlkRenderer.inFlightFences[i], nullptr);
+  }
+
   vkDestroyCommandPool(vlkRenderer.device, vlkRenderer.commandPool, nullptr);
 
   for (auto framebuffer : vlkRenderer.swapChainFramebuffers) {
