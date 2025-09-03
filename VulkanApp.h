@@ -5,6 +5,8 @@
 
 class VulkanApp {
 public:
+  bool framebufferResized = false;
+
   void run();
 
 private:

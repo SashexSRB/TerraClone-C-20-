@@ -1,6 +1,7 @@
 #include "VlkRenderer.h"
 #include "VlkValidator.h"
 
+#include <GLFW/glfw3.h>
 #include <algorithm>
 #include <cstdint>
 #include <limits>
@@ -699,3 +700,36 @@ void VlkRenderer::createSyncObjects() {
     }
   }
 }
+
+void VlkRenderer::cleanupSwapChain() {
+  for (auto framebuffer : swapChainFramebuffers) {
+    vkDestroyFramebuffer(device, framebuffer, nullptr);
+  }
+
+  for (auto imageView : swapChainImageViews) {
+    vkDestroyImageView(device, imageView, nullptr);
+  }
+
+  vkDestroySwapchainKHR(device, swapChain, nullptr);
+}
+
+void VlkRenderer::recreateSwapChain(GLFWwindow *window) {
+  int width = 0, height = 0;
+  glfwGetFramebufferSize(window, &width, &height);
+  while (width == 0 || height == 0) {
+    glfwGetFramebufferSize(window, &width, &height);
+    glfwWaitEvents();
+  }
+
+  vkDeviceWaitIdle(device);
+
+  createSwapChain(window);
+  createImageViews();
+  createFramebuffers();
+}
+
+void VlkRenderer::framebufferResizeCallback(GLFWwindow *window, int width,
+                                            int height) {
+  auto app = reinterpret_cast<VulkanApp *>(glfwGetWindowUserPointer(window));
+  app->framebufferResized = true;
+};

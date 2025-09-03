@@ -1,5 +1,6 @@
 #pragma once
 
+#include "VulkanApp.h"
 #include <fstream>
 #include <optional>
 #include <vector>
@@ -73,11 +74,15 @@ public:
   void createCommandBuffers();
   void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
   void createSyncObjects();
+  void cleanupSwapChain();
+  void recreateSwapChain(GLFWwindow *window);
   int rateDeviceSuitability(VkPhysicalDevice device);
   bool checkDeviceExtensionSupport(VkPhysicalDevice device);
   bool isDeviceSuitable(VkPhysicalDevice device);
   std::vector<const char *> getRequiredExtensions();
   static std::vector<char> readFile(const std::string &filename);
+  static void framebufferResizeCallback(GLFWwindow *window, int width,
+                                        int height);
 
   // Vulkan Datatype Methods
   QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
