@@ -36,6 +36,7 @@ void VulkanApp::initVulkan() {
   vlkRenderer.createFramebuffers();
   vlkRenderer.createCommandPool();
   vlkRenderer.createVertexBuffer();
+  vlkRenderer.createIndexBuffer();
   vlkRenderer.createCommandBuffers();
   vlkRenderer.createSyncObjects();
 
@@ -63,6 +64,9 @@ void VulkanApp::mainLoop() {
 
 void VulkanApp::cleanup() {
   vlkRenderer.cleanupSwapChain();
+
+  vkDestroyBuffer(vlkRenderer.device, vlkRenderer.indexBuffer, nullptr);
+  vkFreeMemory(vlkRenderer.device, vlkRenderer.indexBufferMemory, nullptr);
 
   vkDestroyBuffer(vlkRenderer.device, vlkRenderer.vertexBuffer, nullptr);
   vkFreeMemory(vlkRenderer.device, vlkRenderer.vertexBufferMemory, nullptr);
