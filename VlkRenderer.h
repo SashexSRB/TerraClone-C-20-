@@ -14,6 +14,7 @@ class VlkRenderer {
 public:
   // Variables
   uint32_t glfwExtensionCount = 0;
+  uint32_t currentFrame = 0;
 
   // Constants
   const char **glfwExtensions;
@@ -75,6 +76,7 @@ public:
   void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
   void createSyncObjects();
   void cleanupSwapChain();
+  void drawFrame(GLFWwindow *window, bool &framebufferResized);
   void recreateSwapChain(GLFWwindow *window);
   int rateDeviceSuitability(VkPhysicalDevice device);
   bool checkDeviceExtensionSupport(VkPhysicalDevice device);

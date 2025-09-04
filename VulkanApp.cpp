@@ -51,82 +51,10 @@ void VulkanApp::initVulkan() {
     std::cout << '\t' << extension.extensionName << '\n';
 }
 
-void VulkanApp::drawFrame() {
-  vkWaitForFences(vlkRenderer.device, 1,
-                  &vlkRenderer.inFlightFences[currentFrame], VK_TRUE,
-                  UINT64_MAX);
-
-  uint32_t imageIndex;
-  VkResult result = vkAcquireNextImageKHR(
-      vlkRenderer.device, vlkRenderer.swapChain, UINT64_MAX,
-      vlkRenderer.imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE,
-      &imageIndex);
-
-  if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-    vlkRenderer.recreateSwapChain(window);
-    return;
-  } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-    throw std::runtime_error("Failed to acquire swap chain image!");
-  }
-
-  vkResetFences(vlkRenderer.device, 1,
-                &vlkRenderer.inFlightFences[currentFrame]);
-
-  vkResetCommandBuffer(vlkRenderer.commandBuffers[currentFrame], 0);
-  vlkRenderer.recordCommandBuffer(vlkRenderer.commandBuffers[currentFrame],
-                                  imageIndex);
-
-  VkSubmitInfo submitInfo{};
-  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-  VkSemaphore waitSemaphores[] = {
-      vlkRenderer.imageAvailableSemaphores[currentFrame]};
-  VkPipelineStageFlags waitStages[] = {
-      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-  submitInfo.waitSemaphoreCount = 1;
-  submitInfo.pWaitSemaphores = waitSemaphores;
-  submitInfo.pWaitDstStageMask = waitStages;
-  submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = &vlkRenderer.commandBuffers[currentFrame];
-
-  VkSemaphore signalSemaphores[] = {
-      vlkRenderer.renderFinishedSemaphores[currentFrame]};
-  submitInfo.signalSemaphoreCount = 1;
-  submitInfo.pSignalSemaphores = signalSemaphores;
-
-  if (vkQueueSubmit(vlkRenderer.graphicsQueue, 1, &submitInfo,
-                    vlkRenderer.inFlightFences[currentFrame]) != VK_SUCCESS)
-    throw std::runtime_error("Failed to submit draw command buffer!");
-
-  VkPresentInfoKHR presentInfo{};
-  presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-  presentInfo.waitSemaphoreCount = 1;
-  presentInfo.pWaitSemaphores = signalSemaphores;
-
-  VkSwapchainKHR swapChains[] = {vlkRenderer.swapChain};
-  presentInfo.swapchainCount = 1;
-  presentInfo.pSwapchains = swapChains;
-  presentInfo.pImageIndices = &imageIndex;
-
-  presentInfo.pResults = nullptr;
-
-  result = vkQueuePresentKHR(vlkRenderer.presentQueue, &presentInfo);
-
-  if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
-      framebufferResized) {
-    framebufferResized = false;
-    vlkRenderer.recreateSwapChain(window);
-  } else if (result != VK_SUCCESS) {
-    throw std::runtime_error("Failed to present swap chain image!");
-  }
-
-  currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-}
-
 void VulkanApp::mainLoop() {
   while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
-    drawFrame();
+    vlkRenderer.drawFrame(window, framebufferResized);
   }
 
   vkDeviceWaitIdle(vlkRenderer.device);
