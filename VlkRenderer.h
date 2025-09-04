@@ -2,8 +2,10 @@
 
 #include "VulkanApp.h"
 #include <array>
+#include <chrono>
 #include <fstream>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <optional>
 #include <vector>
 #include <vulkan/vulkan.h>
@@ -37,6 +39,12 @@ public:
     VkSurfaceCapabilitiesKHR capabilities;
     std::vector<VkSurfaceFormatKHR> formats;
     std::vector<VkPresentModeKHR> presentModes;
+  };
+
+  struct UniformBufferObject {
+    alignas(16) glm::mat4 model;
+    alignas(16) glm::mat4 view;
+    alignas(16) glm::mat4 proj;
   };
 
   struct Vertex {
@@ -92,6 +100,7 @@ public:
   VkExtent2D swapChainExtent;
   static std::vector<VkImageView> swapChainImageViews;
   VkRenderPass renderPass;
+  VkDescriptorSetLayout descriptorSetLayout;
   VkPipelineLayout pipelineLayout;
   VkPipeline graphicsPipeline;
   std::vector<VkFramebuffer> swapChainFramebuffers;
@@ -100,10 +109,15 @@ public:
   VkDeviceMemory vertexBufferMemory;
   VkBuffer indexBuffer;
   VkDeviceMemory indexBufferMemory;
+  std::vector<VkBuffer> uniformBuffers;
+  std::vector<VkDeviceMemory> uniformBuffersMemory;
+  std::vector<void *> uniformBuffersMapped;
   std::vector<VkCommandBuffer> commandBuffers;
   std::vector<VkSemaphore> imageAvailableSemaphores;
   std::vector<VkSemaphore> renderFinishedSemaphores;
   std::vector<VkFence> inFlightFences;
+  VkDescriptorPool descriptorPool;
+  std::vector<VkDescriptorSet> descriptorSets;
 
   // Methods
   void createInstance();
@@ -113,12 +127,17 @@ public:
   void createSwapChain(GLFWwindow *window);
   void createImageViews();
   void createRenderPass();
+  void createDescriptorSetLayout();
   void createGraphicsPipeline();
   void createFramebuffers();
   void createCommandPool();
   void createVertexBuffer();
   void createIndexBuffer();
+  void createUniformBuffers();
+  void createDescriptorPool();
+  void createDescriptorSets();
   void createCommandBuffers();
+  void updateUniformBuffer(uint32_t currentImage);
   void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
   void createSyncObjects();
   void cleanupSwapChain();

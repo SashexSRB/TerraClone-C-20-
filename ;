@@ -15,7 +15,7 @@ void VulkanApp::initWindow() {
   glfwInit();
 
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-  glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+  glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
   window = glfwCreateWindow(WIDTH, HEIGHT, "VulkanApp", nullptr, nullptr);
   glfwSetWindowUserPointer(window, this);
@@ -40,7 +40,6 @@ void VulkanApp::initVulkan() {
   vlkRenderer.createIndexBuffer();
   vlkRenderer.createUniformBuffers();
   vlkRenderer.createDescriptorPool();
-  vlkRenderer.createDescriptorSets();
   vlkRenderer.createCommandBuffers();
   vlkRenderer.createSyncObjects();
 
@@ -74,9 +73,6 @@ void VulkanApp::cleanup() {
     vkFreeMemory(vlkRenderer.device, vlkRenderer.uniformBuffersMemory[i],
                  nullptr);
   }
-
-  vkDestroyDescriptorPool(vlkRenderer.device, vlkRenderer.descriptorPool,
-                          nullptr);
 
   vkDestroyDescriptorSetLayout(vlkRenderer.device,
                                vlkRenderer.descriptorSetLayout, nullptr);
