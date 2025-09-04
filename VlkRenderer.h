@@ -116,6 +116,10 @@ public:
   void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
   void createSyncObjects();
   void cleanupSwapChain();
+  void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+  void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
+                    VkMemoryPropertyFlags properties, VkBuffer &buffer,
+                    VkDeviceMemory &bufferMemory);
   void drawFrame(GLFWwindow *window, bool &framebufferResized);
   void recreateSwapChain(GLFWwindow *window);
   int rateDeviceSuitability(VkPhysicalDevice device);
