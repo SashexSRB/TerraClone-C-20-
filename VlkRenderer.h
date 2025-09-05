@@ -11,6 +11,8 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -118,6 +120,10 @@ public:
   std::vector<VkFence> inFlightFences;
   VkDescriptorPool descriptorPool;
   std::vector<VkDescriptorSet> descriptorSets;
+  VkImage textureImage;
+  VkDeviceMemory textureImageMemory;
+  VkImageView textureImageView;
+  VkSampler textureSampler;
 
   // Methods
   void createInstance();
@@ -131,6 +137,9 @@ public:
   void createGraphicsPipeline();
   void createFramebuffers();
   void createCommandPool();
+  void createTextureImage();
+  void createTextureImageView();
+  void createSampler();
   void createVertexBuffer();
   void createIndexBuffer();
   void createUniformBuffers();
@@ -141,6 +150,14 @@ public:
   void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
   void createSyncObjects();
   void cleanupSwapChain();
+  void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width,
+                         uint32_t height);
+  void transitionImageLayout(VkImage image, VkFormat format,
+                             VkImageLayout oldLayout, VkImageLayout newLayout);
+  void createImage(uint32_t width, uint32_t height, VkFormat format,
+                   VkImageTiling tiling, VkImageUsageFlags usage,
+                   VkMemoryPropertyFlags properties, VkImage &image,
+                   VkDeviceMemory &imageMemory);
   void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
   void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                     VkMemoryPropertyFlags properties, VkBuffer &buffer,
@@ -167,4 +184,7 @@ public:
   VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities,
                               GLFWwindow *window);
   VkShaderModule createShaderModule(const std::vector<char> &code);
+  VkCommandBuffer beginSingleTimeCommands();
+  void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+  VkImageView createImageView(VkImage image, VkFormat format);
 };

@@ -36,6 +36,9 @@ void VulkanApp::initVulkan() {
   vlkRenderer.createGraphicsPipeline();
   vlkRenderer.createFramebuffers();
   vlkRenderer.createCommandPool();
+  vlkRenderer.createTextureImage();
+  vlkRenderer.createTextureImageView();
+  vlkRenderer.createSampler();
   vlkRenderer.createVertexBuffer();
   vlkRenderer.createIndexBuffer();
   vlkRenderer.createUniformBuffers();
@@ -68,6 +71,13 @@ void VulkanApp::mainLoop() {
 
 void VulkanApp::cleanup() {
   vlkRenderer.cleanupSwapChain();
+
+  vkDestroySampler(vlkRenderer.device, vlkRenderer.textureSampler, nullptr);
+
+  vkDestroyImageView(vlkRenderer.device, vlkRenderer.textureImageView, nullptr);
+
+  vkDestroyImage(vlkRenderer.device, vlkRenderer.textureImage, nullptr);
+  vkFreeMemory(vlkRenderer.device, vlkRenderer.textureImageMemory, nullptr);
 
   for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
     vkDestroyBuffer(vlkRenderer.device, vlkRenderer.uniformBuffers[i], nullptr);
