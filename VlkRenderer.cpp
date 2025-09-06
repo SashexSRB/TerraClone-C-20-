@@ -1193,8 +1193,6 @@ void VlkRenderer::transitionImageLayout(VkImage image, VkFormat format,
   barrier.subresourceRange.levelCount = 1;
   barrier.subresourceRange.baseArrayLayer = 0;
   barrier.subresourceRange.layerCount = 1;
-  barrier.srcAccessMask = 0;
-  barrier.dstAccessMask = 0;
 
   VkPipelineStageFlags sourceStage;
   VkPipelineStageFlags destinationStage;
@@ -1217,7 +1215,7 @@ void VlkRenderer::transitionImageLayout(VkImage image, VkFormat format,
     throw std::invalid_argument("Unsupported layer transition!");
   }
 
-  vkCmdPipelineBarrier(commandBuffer, 0, 0, 0, 0, nullptr, 0, nullptr, 1,
+  vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1,
                        &barrier);
 
   endSingleTimeCommands(commandBuffer);
@@ -1225,13 +1223,14 @@ void VlkRenderer::transitionImageLayout(VkImage image, VkFormat format,
 
 void VlkRenderer::createTextureImage() {
   int texWidth, texHeight, texChannels;
-
-  // if (texWidth % 8 != 0 || texHeight % 8 != 0)
-  //   throw std::runtime_error(
-  //      "Texture atlas dimensions must be multiplies of 8!");
-  stbi_uc *pixels = stbi_load("./textures/textures.png", &texWidth, &texHeight,
+  
+  stbi_uc *pixels = stbi_load("textures/textures.png", &texWidth, &texHeight,
                               &texChannels, STBI_rgb_alpha);
   VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+  if (texWidth % 8 != 0 || texHeight % 8 != 0)
+     throw std::runtime_error(
+        "Texture atlas dimensions must be multiplies of 8!");
 
   if (!pixels)
     throw std::runtime_error("Failed to load texture image!");
@@ -1259,6 +1258,7 @@ void VlkRenderer::createTextureImage() {
   transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB,
                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+  copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
   transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB,
                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -1272,6 +1272,9 @@ void VlkRenderer::createTextureImageView() {
 }
 
 void VlkRenderer::createSampler() {
+  VkPhysicalDeviceProperties properties{};
+  vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+
   VkSamplerCreateInfo samplerInfo{};
   samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
   samplerInfo.magFilter = VK_FILTER_NEAREST;
@@ -1280,7 +1283,7 @@ void VlkRenderer::createSampler() {
   samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
   samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
   samplerInfo.anisotropyEnable = VK_FALSE;
-  samplerInfo.maxAnisotropy = 1.0f;
+  samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
   samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
   samplerInfo.unnormalizedCoordinates = VK_FALSE;
   samplerInfo.compareEnable = VK_FALSE;
