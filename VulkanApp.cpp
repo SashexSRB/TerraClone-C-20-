@@ -1,6 +1,6 @@
 #include "VulkanApp.h"
-#include "VlkRenderer.h"
-#include "VlkValidator.h"
+#include "Engine/VlkRenderer.h"
+#include "Engine/VlkValidator.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <vulkan/vulkan_core.h>
