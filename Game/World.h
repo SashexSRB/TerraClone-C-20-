@@ -1,16 +1,10 @@
 #pragma once
 
+#include "../Engine/Vertex.h"
 #include <glm/glm.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-struct Vertex {
-  glm::vec2 pos;
-  float z;
-  glm::vec3 color;
-  glm::vec2 texCoord;
-};
 
 struct Tile {
   uint16_t tileId = 0;
@@ -52,5 +46,5 @@ public:
   int getHeight() const { return height; }
   void generate();
   void generateVertices(std::vector<Vertex> &vertices,
-                        std::vector<uint16_t> &indices);
+                        std::vector<uint32_t> &indices);
 };

@@ -1097,12 +1097,6 @@ void VlkRenderer::recreateSwapChain(GLFWwindow *window) {
   createFramebuffers();
 }
 
-void VlkRenderer::framebufferResizeCallback(GLFWwindow *window, int width,
-                                            int height) {
-  auto app = reinterpret_cast<VulkanApp *>(glfwGetWindowUserPointer(window));
-  app->framebufferResized = true;
-};
-
 void VlkRenderer::drawFrame(GLFWwindow *window, bool &framebufferResized) {
   vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE,
                   UINT64_MAX);

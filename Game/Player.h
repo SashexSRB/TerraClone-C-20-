@@ -27,8 +27,8 @@ struct Player {
 };
 
 void generatePlayerVertices(const Player &player, std::vector<Vertex> &vertices,
-                            std::vector<uint16_t> &indices);
+                            std::vector<uint32_t> &indices);
 void generateInventoryVertices(const Inventory &inventory, float screenWidth,
                                float screenHeight,
                                std::vector<Vertex> &vertices,
-                               std::vector<uint16_t> &indices);
+                               std::vector<uint32_t> &indices);

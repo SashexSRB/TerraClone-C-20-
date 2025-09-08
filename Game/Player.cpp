@@ -1,13 +1,12 @@
 #include "Player.h"
 
 void generatePlayerVertices(const Player &player, std::vector<Vertex> &vertices,
-                            std::vector<uint16_t> &indices) {
+                            std::vector<uint32_t> &indices) {
   vertices.clear();
   indices.clear();
   const float size = 32.0f; // Player sprite size
   float z = 0.2f;           // Player in front of tiles
   const float texTileSize = 8.0f / 256.0f;
-  uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
   vertices.push_back({{player.position.x, player.position.y},
                       z,
                       {1.0f, 1.0f, 1.0f},
@@ -30,7 +29,7 @@ void generatePlayerVertices(const Player &player, std::vector<Vertex> &vertices,
 void generateInventoryVertices(const Inventory &inventory, float screenWidth,
                                float screenHeight,
                                std::vector<Vertex> &vertices,
-                               std::vector<uint16_t> &indices) {
+                               std::vector<uint32_t> &indices) {
   vertices.clear();
   indices.clear();
   const float slotSize = 40.0f; // UI slot size
@@ -38,7 +37,7 @@ void generateInventoryVertices(const Inventory &inventory, float screenWidth,
   float y = screenHeight - slotSize; // Bottom of screen
   for (size_t i = 0; i < inventory.items.size() && i < 10; ++i) {
     float x = i * slotSize;
-    uint16_t tileId = inventory.items[i].first;
+    uint32_t tileId = inventory.items[i].first;
     const TileProperties &props = TileRegistry::tileTypes[tileId];
     uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
     vertices.push_back({{x, y},
@@ -55,11 +54,7 @@ void generateInventoryVertices(const Inventory &inventory, float screenWidth,
                         props.texCoord + glm::vec2(texTileSize, 0.0f)});
     vertices.push_back(
         {{x, y + slotSize}, 0.0f, {1.0f, 1.0f, 1.0f}, props.texCoord});
-    indices.insert(indices.end(), {static_cast<uint16_t>(baseIndex),
-                                   static_cast<uint16_t>(baseIndex + 1),
-                                   static_cast<uint16_t>(baseIndex + 2),
-                                   static_cast<uint16_t>(baseIndex + 2),
-                                   static_cast<uint16_t>(baseIndex + 3),
-                                   static_cast<uint16_t>(baseIndex)});
+    indices.insert(indices.end(), {baseIndex, baseIndex + 1, baseIndex + 2,
+                                   baseIndex + 2, baseIndex + 3, baseIndex});
   }
 }

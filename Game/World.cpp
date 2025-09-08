@@ -1,4 +1,5 @@
 #include "World.h"
+#include <iostream>
 #include <stdexcept>
 #include <unordered_map>
 
@@ -66,12 +67,12 @@ void World::generate() {
 }
 
 void World::generateVertices(std::vector<Vertex> &vertices,
-                             std::vector<uint16_t> &indices) {
+                             std::vector<uint32_t> &indices) {
   vertices.clear();
   indices.clear();
   const float tileSize = 16.0f;            // Pixels per tile in world
   const float texTileSize = 8.0f / 256.0f; // 8x8 tiles in atlas
-  const size_t maxVertices = 65536;        // uint16_t limit
+  const size_t maxVertices = 1000000;      // uint16_t limit
   for (int x = 0; x < width; ++x) {
     for (int y = 0; y < height; y++) {
       const Tile &tile = tiles[x][y];
@@ -81,7 +82,7 @@ void World::generateVertices(std::vector<Vertex> &vertices,
         throw std::runtime_error("Too many vertices for uint16_t indices");
       if (tile.wallId != 0) {
         const TileProperties &props = TileRegistry::wallTypes[tile.wallId];
-        uint16_t baseIndex = static_cast<uint16_t>(vertices.size());
+        uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
         vertices.push_back({{x * tileSize, y * tileSize},
                             props.zValue,
                             {1.0f, 1.0f, 1.0f},
@@ -99,12 +100,9 @@ void World::generateVertices(std::vector<Vertex> &vertices,
                             props.zValue,
                             {1.0f, 1.0f, 1.0f},
                             props.texCoord});
-        indices.insert(indices.end(), {static_cast<uint16_t>(baseIndex),
-                                       static_cast<uint16_t>(baseIndex + 1),
-                                       static_cast<uint16_t>(baseIndex + 2),
-                                       static_cast<uint16_t>(baseIndex + 2),
-                                       static_cast<uint16_t>(baseIndex + 3),
-                                       static_cast<uint16_t>(baseIndex)});
+        indices.insert(indices.end(),
+                       {baseIndex, baseIndex + 1, baseIndex + 2, baseIndex + 2,
+                        baseIndex + 3, baseIndex});
       }
 
       if (tile.isActive) {
@@ -127,13 +125,12 @@ void World::generateVertices(std::vector<Vertex> &vertices,
                             props.zValue,
                             {1.0f, 1.0f, 1.0f},
                             props.texCoord});
-        indices.insert(indices.end(), {static_cast<uint16_t>(baseIndex),
-                                       static_cast<uint16_t>(baseIndex + 1),
-                                       static_cast<uint16_t>(baseIndex + 2),
-                                       static_cast<uint16_t>(baseIndex + 2),
-                                       static_cast<uint16_t>(baseIndex + 3),
-                                       static_cast<uint16_t>(baseIndex)});
+        indices.insert(indices.end(),
+                       {baseIndex, baseIndex + 1, baseIndex + 2, baseIndex + 2,
+                        baseIndex + 3, baseIndex});
       }
     }
   }
+  std::cout << "World generated: " << vertices.size() << " vertices, "
+            << indices.size() << " indics.\n";
 }

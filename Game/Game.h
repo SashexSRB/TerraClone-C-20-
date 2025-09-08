@@ -7,14 +7,20 @@
 
 class Game {
 public:
-  Game(VlkRenderer &renderer, GLFWwindow *window);
+  Game(GLFWwindow *window, VlkRenderer &renderer);
+  Game(const Game &) = delete;
+  Game &operator=(const Game &) = delete;
   void run();
+  void notifyWorldChanged();
 
 private:
   VlkRenderer &renderer;
   GLFWwindow *window;
   World world;
   Player player;
+  std::vector<Vertex> worldVertices;
+  std::vector<uint32_t> worldIndices;
+  bool worldChanged = true;
   void update(float deltaTime);
   void handleInput();
   void updateBuffers();

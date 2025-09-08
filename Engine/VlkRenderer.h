@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../VulkanApp.h"
 #include <array>
 #include <chrono>
 #include <cstddef>

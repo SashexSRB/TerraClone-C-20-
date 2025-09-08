@@ -1,25 +1,33 @@
 #include "VulkanApp.h"
-#include "Engine/VlkRenderer.h"
-#include "Engine/VlkValidator.h"
-#include <GLFW/glfw3.h>
 #include <iostream>
+#include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
-VlkRenderer vlkRenderer;
+VulkanApp::VulkanApp() : window(nullptr), game(nullptr) {}
 
-const uint32_t WIDTH = 800;
-const uint32_t HEIGHT = 600;
-const int MAX_FRAMES_IN_FLIGHT = 2;
+VulkanApp::~VulkanApp() { cleanup(); }
+
+void VulkanApp::framebufferResizeCallback(GLFWwindow *window, int width,
+                                          int height) {
+  auto app = reinterpret_cast<VulkanApp *>(glfwGetWindowUserPointer(window));
+  app->framebufferResized = true;
+};
 
 void VulkanApp::initWindow() {
-  glfwInit();
+  if (!glfwInit())
+    throw std::runtime_error("Failed to initialize GLFW!");
 
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-  window = glfwCreateWindow(WIDTH, HEIGHT, "VulkanApp", nullptr, nullptr);
+  window = glfwCreateWindow(WIDTH, HEIGHT, "TerraClone", nullptr, nullptr);
+  if (!window) {
+    glfwTerminate();
+    throw std::runtime_error("Failed to create GLFW Window!");
+  }
+
   glfwSetWindowUserPointer(window, this);
-  glfwSetFramebufferSizeCallback(window, vlkRenderer.framebufferResizeCallback);
+  glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
   std::cout << "OK: Window Initialized.\n";
 }
 
@@ -48,23 +56,27 @@ void VulkanApp::initVulkan() {
   vlkRenderer.createCommandBuffers();
   vlkRenderer.createSyncObjects();
 
-  uint32_t extensionCount = 0;
-  vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+  TileRegistry::initialize();
 
-  std::vector<VkExtensionProperties> extensions(extensionCount);
-  vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount,
-                                         extensions.data());
+  game = new Game(window, vlkRenderer);
 
-  std::cout << "Available Extensions:\n";
+  // uint32_t extensionCount = 0;
+  // vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
-  for (const auto &extension : extensions)
-    std::cout << '\t' << extension.extensionName << '\n';
+  // std::vector<VkExtensionProperties> extensions(extensionCount);
+  // vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount,
+  //                                        extensions.data());
+
+  // std::cout << "Available Extensions:\n";
+
+  // for (const auto &extension : extensions)
+  //   std::cout << '\t' << extension.extensionName << '\n';
 }
 
 void VulkanApp::mainLoop() {
   while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
-    vlkRenderer.drawFrame(window, framebufferResized);
+    game->run();
   }
 
   vkDeviceWaitIdle(vlkRenderer.device);
@@ -130,8 +142,8 @@ void VulkanApp::cleanup() {
 }
 
 void VulkanApp::run() {
-  VulkanApp::initWindow();
-  VulkanApp::initVulkan();
-  VulkanApp::mainLoop();
-  VulkanApp::cleanup();
+  initWindow();
+  initVulkan();
+  mainLoop();
+  cleanup();
 }
