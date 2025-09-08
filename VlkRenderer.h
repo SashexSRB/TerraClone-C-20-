@@ -52,6 +52,7 @@ public:
 
   struct Vertex {
     glm::vec2 pos;
+    float z;
     glm::vec3 color;
     glm::vec2 texCoord;
 
@@ -64,9 +65,9 @@ public:
       return bindingDescription;
     }
 
-    static std::array<VkVertexInputAttributeDescription, 3>
+    static std::array<VkVertexInputAttributeDescription, 4>
     getAttributeDescriptions() {
-      std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
+      std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions{};
 
       attributeDescriptions[0].binding = 0;
       attributeDescriptions[0].location = 0;
@@ -75,23 +76,28 @@ public:
 
       attributeDescriptions[1].binding = 0;
       attributeDescriptions[1].location = 1;
-      attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-      attributeDescriptions[1].offset = offsetof(Vertex, color);
+      attributeDescriptions[1].format = VK_FORMAT_R32_SFLOAT;
+      attributeDescriptions[1].offset = offsetof(Vertex, z);
 
       attributeDescriptions[2].binding = 0;
       attributeDescriptions[2].location = 2;
-      attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-      attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+      attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+      attributeDescriptions[2].offset = offsetof(Vertex, color);
+
+      attributeDescriptions[3].binding = 0;
+      attributeDescriptions[3].location = 3;
+      attributeDescriptions[3].format = VK_FORMAT_R32G32_SFLOAT;
+      attributeDescriptions[3].offset = offsetof(Vertex, texCoord);
 
       return attributeDescriptions;
     }
   };
 
   const std::vector<Vertex> vertices = {
-      {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-      {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-      {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-      {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}};
+      {{-0.5f, -0.5f}, 0.0f, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+      {{0.5f, -0.5f}, 0.0f, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+      {{0.5f, 0.5f}, 0.0f, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+      {{-0.5f, 0.5f}, 0.0, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}};
 
   const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 
@@ -132,6 +138,9 @@ public:
   VkDeviceMemory textureImageMemory;
   VkImageView textureImageView;
   VkSampler textureSampler;
+  VkImage depthImage;
+  VkDeviceMemory depthImageMemory;
+  VkImageView depthImageView;
 
   // Methods
   void createInstance();
@@ -145,6 +154,7 @@ public:
   void createGraphicsPipeline();
   void createFramebuffers();
   void createCommandPool();
+  void createDepthResources();
   void createTextureImage();
   void createTextureImageView();
   void createSampler();
@@ -177,6 +187,7 @@ public:
                           VkMemoryPropertyFlags properties);
   bool checkDeviceExtensionSupport(VkPhysicalDevice device);
   bool isDeviceSuitable(VkPhysicalDevice device);
+  bool hasStencilComponent(VkFormat format);
   std::vector<const char *> getRequiredExtensions();
   static std::vector<char> readFile(const std::string &filename);
   static void framebufferResizeCallback(GLFWwindow *window, int width,
@@ -194,5 +205,10 @@ public:
   VkShaderModule createShaderModule(const std::vector<char> &code);
   VkCommandBuffer beginSingleTimeCommands();
   void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-  VkImageView createImageView(VkImage image, VkFormat format);
+  VkImageView createImageView(VkImage image, VkFormat format,
+                              VkImageAspectFlags aspectFlags);
+  VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates,
+                               VkImageTiling tiling,
+                               VkFormatFeatureFlags features);
+  VkFormat findDepthFormat();
 };

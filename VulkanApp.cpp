@@ -34,8 +34,9 @@ void VulkanApp::initVulkan() {
   vlkRenderer.createRenderPass();
   vlkRenderer.createDescriptorSetLayout();
   vlkRenderer.createGraphicsPipeline();
-  vlkRenderer.createFramebuffers();
   vlkRenderer.createCommandPool();
+  vlkRenderer.createDepthResources();
+  vlkRenderer.createFramebuffers();
   vlkRenderer.createTextureImage();
   vlkRenderer.createTextureImageView();
   vlkRenderer.createSampler();
