@@ -83,23 +83,30 @@ void World::generateVertices(std::vector<Vertex> &vertices,
       if (tile.wallId != 0) {
         const TileProperties &props = TileRegistry::wallTypes[tile.wallId];
         uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
-        vertices.push_back({{x * tileSize, y * tileSize},
-                            props.zValue,
-                            {1.0f, 1.0f, 1.0f},
-                            props.texCoord + glm::vec2(0.0f, texTileSize)});
-        vertices.push_back(
-            {{(x + 1) * tileSize, y * tileSize},
-             props.zValue,
-             {1.0f, 1.0f, 1.0f},
-             props.texCoord + glm::vec2(texTileSize, texTileSize)});
-        vertices.push_back({{(x + 1) * tileSize, (y + 1) * tileSize},
-                            props.zValue,
-                            {1.0f, 1.0f, 1.0f},
-                            props.texCoord + glm::vec2(texTileSize, 0.0f)});
-        vertices.push_back({{x * tileSize, (y + 1) * tileSize},
-                            props.zValue,
-                            {1.0f, 1.0f, 1.0f},
-                            props.texCoord});
+        vertices.push_back({
+            {x * tileSize, y * tileSize},
+            props.texCoord + glm::vec2(0.0f, texTileSize),
+            {1.0f, 1.0f, 1.0f},
+            props.zValue
+        });
+        vertices.push_back({
+            {(x + 1) * tileSize, y * tileSize},
+            props.texCoord + glm::vec2(texTileSize, texTileSize),
+            {1.0f, 1.0f, 1.0f},
+            props.zValue
+        });
+        vertices.push_back({
+            {(x + 1) * tileSize, (y + 1) * tileSize},
+            props.texCoord + glm::vec2(texTileSize, 0.0f),
+            {1.0f, 1.0f, 1.0f},
+            props.zValue
+        });
+        vertices.push_back({
+            {x * tileSize, (y + 1) * tileSize},
+            props.texCoord,
+            {1.0f, 1.0f, 1.0f},
+            props.zValue
+        });
         indices.insert(indices.end(),
                        {baseIndex, baseIndex + 1, baseIndex + 2, baseIndex + 2,
                         baseIndex + 3, baseIndex});
@@ -108,26 +115,30 @@ void World::generateVertices(std::vector<Vertex> &vertices,
       if (tile.isActive) {
         const TileProperties &props = TileRegistry::tileTypes[tile.tileId];
         uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
-        vertices.push_back({{x * tileSize, y * tileSize},
-                            props.zValue,
-                            {1.0f, 1.0f, 1.0f},
-                            props.texCoord + glm::vec2(0.0f, texTileSize)});
-        vertices.push_back(
-            {{(x + 1) * tileSize, y * tileSize},
-             props.zValue,
-             {1.0f, 1.0f, 1.0f},
-             props.texCoord + glm::vec2(texTileSize, texTileSize)});
-        vertices.push_back({{(x + 1) * tileSize, (y + 1) * tileSize},
-                            props.zValue,
-                            {1.0f, 1.0f, 1.0f},
-                            props.texCoord + glm::vec2(texTileSize, 0.0f)});
-        vertices.push_back({{x * tileSize, (y + 1) * tileSize},
-                            props.zValue,
-                            {1.0f, 1.0f, 1.0f},
-                            props.texCoord});
-        indices.insert(indices.end(),
-                       {baseIndex, baseIndex + 1, baseIndex + 2, baseIndex + 2,
-                        baseIndex + 3, baseIndex});
+        vertices.push_back({
+            {x * tileSize, y * tileSize},
+            props.texCoord + glm::vec2(0.0f, texTileSize),
+            {1.0f, 1.0f, 1.0f},
+            props.zValue
+        });
+        vertices.push_back({
+            {(x + 1) * tileSize, y * tileSize},
+            props.texCoord + glm::vec2(texTileSize, texTileSize),
+            {1.0f, 1.0f, 1.0f},
+            props.zValue
+        });
+        vertices.push_back({
+            {(x + 1) * tileSize, (y + 1) * tileSize},
+            props.texCoord + glm::vec2(texTileSize, 0.0f),
+            {1.0f, 1.0f, 1.0f},
+            props.zValue
+        });
+        vertices.push_back({
+            {x * tileSize, (y + 1) * tileSize},
+            props.texCoord,
+            {1.0f, 1.0f, 1.0f},
+            props.zValue
+        });
       }
     }
   }

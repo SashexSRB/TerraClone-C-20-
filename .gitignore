@@ -2,3 +2,5 @@
 *.spv
 TC-EngineVK
 Build/
+.vscode/
+output.txt

@@ -8,21 +8,21 @@ void generatePlayerVertices(const Player &player, std::vector<Vertex> &vertices,
   float z = 0.2f;           // Player in front of tiles
   const float texTileSize = 8.0f / 256.0f;
   vertices.push_back({{player.position.x, player.position.y},
-                      z,
-                      {1.0f, 1.0f, 1.0f},
-                      {0.0f, texTileSize}});
+                    {0.0f, texTileSize},
+                    {1.0f, 1.0f, 1.0f},
+                    z});
   vertices.push_back({{player.position.x + size, player.position.y},
-                      z,
+                      {texTileSize, texTileSize},
                       {1.0f, 1.0f, 1.0f},
-                      {texTileSize, texTileSize}});
+                      z});
   vertices.push_back({{player.position.x + size, player.position.y + size},
-                      z,
+                      {texTileSize, 0.0f},
                       {1.0f, 1.0f, 1.0f},
-                      {texTileSize, 0.0f}});
+                      z});
   vertices.push_back({{player.position.x, player.position.y + size},
-                      z,
+                      {0.0f, 0.0f},
                       {1.0f, 1.0f, 1.0f},
-                      {0.0f, 0.0f}});
+                      z});
   indices = {0, 1, 2, 2, 3, 0};
 }
 
@@ -41,19 +41,21 @@ void generateInventoryVertices(const Inventory &inventory, float screenWidth,
     const TileProperties &props = TileRegistry::tileTypes[tileId];
     uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
     vertices.push_back({{x, y},
-                        0.0f,
+                        props.texCoord + glm::vec2(0.0f, texTileSize),
                         {1.0f, 1.0f, 1.0f},
-                        props.texCoord + glm::vec2(0.0f, texTileSize)});
+                        0.0f});
     vertices.push_back({{x + slotSize, y},
-                        0.0f,
+                        props.texCoord + glm::vec2(texTileSize, texTileSize),
                         {1.0f, 1.0f, 1.0f},
-                        props.texCoord + glm::vec2(texTileSize, texTileSize)});
+                        0.0f});
     vertices.push_back({{x + slotSize, y + slotSize},
-                        0.0f,
+                        props.texCoord + glm::vec2(texTileSize, 0.0f),
                         {1.0f, 1.0f, 1.0f},
-                        props.texCoord + glm::vec2(texTileSize, 0.0f)});
-    vertices.push_back(
-        {{x, y + slotSize}, 0.0f, {1.0f, 1.0f, 1.0f}, props.texCoord});
+                        0.0f});
+    vertices.push_back({{x, y + slotSize},
+                        props.texCoord,
+                        {1.0f, 1.0f, 1.0f},
+                        0.0f});
     indices.insert(indices.end(), {baseIndex, baseIndex + 1, baseIndex + 2,
                                    baseIndex + 2, baseIndex + 3, baseIndex});
   }

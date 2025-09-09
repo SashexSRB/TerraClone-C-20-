@@ -1,4 +1,5 @@
 #include "VulkanApp.h"
+#include "Game/World.h"
 #include <iostream>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
@@ -48,17 +49,15 @@ void VulkanApp::initVulkan() {
   vlkRenderer.createTextureImage();
   vlkRenderer.createTextureImageView();
   vlkRenderer.createSampler();
-  vlkRenderer.createVertexBuffer();
-  vlkRenderer.createIndexBuffer();
   vlkRenderer.createUniformBuffers();
   vlkRenderer.createDescriptorPool();
   vlkRenderer.createDescriptorSets();
+  TileRegistry::initialize();
+  vlkRenderer.initBuffers();
   vlkRenderer.createCommandBuffers();
   vlkRenderer.createSyncObjects();
 
-  TileRegistry::initialize();
-
-  game = new Game(window, vlkRenderer);
+  // game = new Game(window, vlkRenderer);
 
   // uint32_t extensionCount = 0;
   // vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -76,7 +75,8 @@ void VulkanApp::initVulkan() {
 void VulkanApp::mainLoop() {
   while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
-    game->run();
+    std::cout << "STAT: Calling drawFrame!\n";
+    vlkRenderer.drawFrame(window, framebufferResized);
   }
 
   vkDeviceWaitIdle(vlkRenderer.device);
